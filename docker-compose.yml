@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8000
+      - WORK_DIR=/data
+      - FPS=8
+      - DEVICE=cpu
+    volumes:
+      - ./data:/data
+    # Uncomment runtime and device settings to enable GPUs (requires host setup)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+# Example GPU compose (commented):
+# services:
+#   backend:
+#     image: your-gpu-image
+#     runtime: nvidia
+#     environment:
+#       - DEVICE=cuda

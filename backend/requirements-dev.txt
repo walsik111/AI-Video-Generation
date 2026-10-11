@@ -1,0 +1,17 @@
+# Lightweight development requirements (no heavy ML libraries)
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+requests
+Pillow
+# Optional: for faster local async file handling
+aiofiles
+
+# NOTE: Heavy ML libs (diffusers/transformers/torch) are omitted here to keep
+# this install fast and suitable for CPU-only dev testing. To enable model
+# generation, install the following (may be large):
+# transformers diffusers[torch] torch accelerate
+
+# ffmpeg is required for video composition but is a system package,
+# install via your OS package manager (e.g. brew install ffmpeg)

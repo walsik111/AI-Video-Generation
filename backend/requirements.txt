@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+aiofiles
+pydantic
+python-multipart
+requests
+Pillow
+# Diffusers and transformers may be large; keep them optional but listed here.
+# They will work on CPU but are slow. Consider GPU for performance.
+transformers>=4.30.0
+diffusers[torch]
+torch
+accelerate

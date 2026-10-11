@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AI Video Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 p-8">
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
+      <h1 class="text-2xl font-bold mb-4">AI Video Generator</h1>
+      <form id="form" class="space-y-4">
+        <div>
+          <label class="block font-medium">Prompt</label>
+          <textarea id="prompt" class="w-full border p-2" rows="3">A serene landscape at sunrise</textarea>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block">Duration (s)</label>
+            <input id="duration" type="number" value="3" class="w-full border p-2" />
+          </div>
+          <div>
+            <label class="block">Resolution</label>
+            <input id="resolution" type="text" value="512x512" class="w-full border p-2" />
+          </div>
+          <div>
+            <label class="block">Style</label>
+            <select id="style" class="w-full border p-2">
+              <option value="cinematic">Cinematic</option>
+              <option value="anime">Anime</option>
+              <option value="realistic" selected>Realistic</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <button id="submit" type="button" class="bg-blue-600 text-white px-4 py-2 rounded">Generate</button>
+        </div>
+      </form>
+
+      <div id="status" class="mt-4"></div>
+      <div id="download" class="mt-4"></div>
+    </div>
+
+    <script>
+      const apiBase = '/api'
+      document.getElementById('submit').addEventListener('click', async () => {
+        const prompt = document.getElementById('prompt').value
+        const duration = parseInt(document.getElementById('duration').value || '3')
+        const resolution = document.getElementById('resolution').value
+        const style = document.getElementById('style').value
+        document.getElementById('status').innerText = 'Submitting job...'
+        const res = await fetch(`${apiBase}/generate-video`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, duration, resolution, style })
+        })
+        const data = await res.json()
+        const jobId = data.job_id
+        document.getElementById('status').innerText = `Job submitted: ${jobId}`
+
+        // Poll status
+        const poll = setInterval(async () => {
+          const s = await fetch(`${apiBase}/status/${jobId}`)
+          const js = await s.json()
+          document.getElementById('status').innerText = `Status: ${js.status}`
+          if (js.status === 'completed') {
+            clearInterval(poll)
+            document.getElementById('download').innerHTML = `<a class="text-green-600" href="${apiBase}/download/${jobId}">Download video</a>`
+          }
+          if (js.status === 'failed') {
+            clearInterval(poll)
+            document.getElementById('download').innerText = `Failed: ${js.error}`
+          }
+        }, 3000)
+      })
+    </script>
+  </body>
+</html>
